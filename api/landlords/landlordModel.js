@@ -13,15 +13,12 @@ const LandlordSchema = new Schema({
     password:{ type:String },
     //profile_picture:{ type:String },
     documents: { 
-        type: DocumentSchema 
+        document_id: { type: Number, unique: true, required: true },
+        type: { type: String },
+        binary: { type: Buffer } 
     },
-    properties: { type: Schema.Types.ObjectId, ref: 'Accomodation' }
-});
-
-const DocumentSchema = new Schema({
-    document_id: { type: Number, unique: true, required: true },
-    type: { type: String },
-    binary: { type: Buffer }
+    properties: [{ type: Schema.Types.ObjectId, ref: 'Accomodation' }]
+    
 });
 
 export default mongoose.model('Landlord', LandlordSchema);

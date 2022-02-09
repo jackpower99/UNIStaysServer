@@ -13,15 +13,30 @@ const AccomodationSchema = new Schema({
     bathroom_count: { type: Number },
     property_type: { type: String },
     rooms : { 
-        type: RoomSchema
+        room_id: { type: Number, unique: true, required: true },
+        room_type: { type: String },
+        size_sq_meters: { type: String },
+        agreement_type: [{ type: Schema.Types.ObjectId, ref: 'Agreement' }],
     },
     bookings: {
-        type: BookingSchema 
+        booking_id: { type: Number, unique: true, required: true },
+        landlord_id: { type: Schema.Types.ObjectId, ref: 'Landlord' },
+        student_id:{ type: Schema.Types.ObjectId, ref: 'Student' },
+        room_id: { type: Number },
+        agreement_type: { type: Schema.Types.ObjectId, ref: 'Agreement' },
+        start_date: { type : Date },
+        end_date: { type : Date },
+        flexi_day_start: { type : String },
+        flexi_day_end: { type : String },
     },
     reviews: {
-        type: ReviewSchema
+        review_id: { type: Number, unique: true, required: true },
+        student_id:{ type: Schema.Types.ObjectId, ref: 'Student' },
+        rating: { type: Number },
+        summary: { type: String },
+        date: { type: String }
     },
-    // propert_images: {
+    // property_images: {
     //     type: ImageSchema
     // },
     amenities:[{
@@ -29,34 +44,34 @@ const AccomodationSchema = new Schema({
     }]
 });
 
-const RoomSchema = new Schema({
-    room_id: { type: Number, unique: true, required: true },
-    room_type: { type: String },
-    size_sq_meters: { type: String },
-    agreement_type: { 
-        type: AgreementSchema
-    }
-});
+// const RoomSchema = new Schema({
+//     room_id: { type: Number, unique: true, required: true },
+//     room_type: { type: String },
+//     size_sq_meters: { type: String },
+//     agreement_type: { 
+//         type: AgreementSchema
+//     }
+// });
 
-const BookingSchema = new Schema({
-    booking_id: { type: Number, unique: true, required: true },
-    landlord_id: { type: Number, required: true },
-    student_id: { type: Number, required : true },
-    room_id: { type: Number },
-    agreement_type: { type: Schema.Types.ObjectId, ref: 'Agreement' },
-    start_date: { type : Date },
-    end_date: { type : Date },
-    flexi_day_start: { type : String },
-    flexi_day_end: { type : String },
-});
+// const BookingSchema = new Schema({
+//     booking_id: { type: Number, unique: true, required: true },
+//     landlord_id: { type: Number, required: true },
+//     student_id: { type: Number, required : true },
+//     room_id: { type: Number },
+//     agreement_type: { type: Schema.Types.ObjectId, ref: 'Agreement' },
+//     start_date: { type : Date },
+//     end_date: { type : Date },
+//     flexi_day_start: { type : String },
+//     flexi_day_end: { type : String },
+// });
 
-const ReviewSchema = new Schema({
-    review_id: { type: Number, unique: true, required: true },
-    student_id: { type: Number, required : true },
-    rating: { type: Number },
-    summary: { type: String },
-    date: { type: String }
-});
+// const ReviewSchema = new Schema({
+//     review_id: { type: Number, unique: true, required: true },
+//     student_id: { type: Number, required : true },
+//     rating: { type: Number },
+//     summary: { type: String },
+//     date: { type: String }
+// });
 
 // const ImageSchema = new Schema({
 //     image_id: { type: Number },
