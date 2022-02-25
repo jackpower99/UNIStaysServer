@@ -1,16 +1,17 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt-nodejs';
+import bcrypt from 'bcrypt';
 
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-  username: { type: String, unique: true, required: true},
-  password: {type: String, required: true },
-  role: { type: String }
+  email: { type: String, required: true},
+  password: { type: String },
+  role: { type: String },
+  created_on: {type: Date, default: Date.now}
 });
 
-UserSchema.statics.findByUserName = function (username) {
-  return this.findOne({ username: username });
+UserSchema.statics.findByEmail = function (email) {
+  return this.findOne({ email: email });
 };
 
 UserSchema.methods.comparePassword = function (passw, callback) {
@@ -29,7 +30,7 @@ UserSchema.pre('save', function(next) {
           if (err) {
               return next(err);
           }
-          bcrypt.hash(user.password, salt, null, (err, hash)=> {
+          bcrypt.hash(user.password, salt, (err, hash)=> {
               if (err) {
                   return next(err);
               }

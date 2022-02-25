@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const LandlordSchema = new Schema({
-    id: {type: Number, unique: true, required: true },
     email: { type: String, unique: true, required: true },
     fname: { type: String, required: true },
     lname: { type: String, required: true },

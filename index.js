@@ -4,6 +4,7 @@ import './db';
 import studentRouter from './api/students';
 import usersRouter from './api/users';
 import bodyParser from "body-parser";
+import passport from './api/authenticate';
 
 dotenv.config();
 
@@ -16,16 +17,13 @@ app.use(express.json());
 app.use('/api/students', studentRouter);
 app.use('/api/users', usersRouter);
 
+//For protected routes
+//app.use('/api/movies', passport.authenticate('jwt', {session: false}), moviesRouter);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
-app.use(
-  session({
-    secret: "ilikecake",
-    resave: true,
-    saveUninitialized: true,
-  })
-);
+app.use(passport.initialize());
 
 
 let server = app.listen(port, () => {

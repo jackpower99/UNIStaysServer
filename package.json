@@ -18,20 +18,25 @@
   "homepage": "https://github.com/jackpower99/UNIStaysServer#readme",
   "devDependencies": {
     "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.4",
+    "@babel/core": "^7.17.2",
     "@babel/node": "^7.6.3",
-    "@babel/plugin-transform-runtime": "^7.6.2",
-    "@babel/preset-env": "^7.3.4",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-stage-2": "^7.8.3",
     "@babel/register": "^7.0.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^8.8.0",
     "nodemon": "^2.0.15"
   },
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.1",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "express-async-handler": "^1.2.0",
-    "mongoose": "^6.2.0"
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.2.0",
+    "passport": "^0.5.2",
+    "passport-jwt": "^4.0.0"
   }
 }
