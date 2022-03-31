@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const StudentSchema = new Schema({
-    student_email: { type: String, unique: true, required: true },
+    email: { type: String, unique: true, required: true },
     fname: { type: String },
     lname: { type: String},
     address: { type: String},
@@ -22,7 +22,8 @@ const StudentSchema = new Schema({
     }],
     documents: [{ 
         type: { type: String },
-        binary: { type: Buffer },
+        name: { type: String },
+        data: { type: Buffer },
         default: []
     }],
     friends: [{
@@ -32,22 +33,32 @@ const StudentSchema = new Schema({
 });
 
 StudentSchema.statics.findByEmail = function (email) {
-    return this.findOne({ student_email: email });
+    return this.findOne({ email: email });
   };
 
 StudentSchema.statics.findStudentReviews = function (email){
-    return this.findOne({student_email: email}, 'reviews');
+    return this.findOne({email: email}, 'reviews');
 }
 
 StudentSchema.statics.findStudentDocuments = function (email){
-    return this.findOne({student_email: email}, 'documents');
+    return this.findOne({email: email}, 'documents');
 }
 
 StudentSchema.statics.findStudentFriends = function (email){
-    return this.findOne({student_email: email}, 'friends');
+    return this.findOne({email: email}, 'friends');
 }
 StudentSchema.statics.removeStudentReview = function (email, id){
-    return this.updateOne({student_email: email},
+    return this.updateOne({email: email},
+    { $pull: { reviews: {_id : id } } } );
+}
+
+StudentSchema.statics.removeStudentDocument = function (email, id){
+    return this.updateOne({email: email},
+    { $pull: { reviews: {_id : id } } } );
+}
+
+StudentSchema.statics.removeStudentFriend = function (email, id){
+    return this.updateOne({email: email},
     { $pull: { reviews: {_id : id } } } );
 }
 
