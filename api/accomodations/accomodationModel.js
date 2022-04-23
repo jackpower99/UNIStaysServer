@@ -5,7 +5,6 @@ const Schema = mongoose.Schema;
 const AccomodationSchema = new Schema({
     landlord_id: { type: Schema.Types.ObjectId, ref: 'Landlord'},
     address:  { type: String },
-    posting_type: { type: String },
     county: { type: String },
     zip:  { type: String },
     colleges: [{ type: String }],
@@ -17,8 +16,11 @@ const AccomodationSchema = new Schema({
     available_start: { type: Date },
     available_end: { type: Date },
     price_per_month: { type: Number },
+    lat: { type: mongoose.Decimal128 },
+    lng: { type: mongoose.Decimal128 },
     UNIFlex_available: { type: Boolean },
     UNIBNB_available: { type: Boolean },
+    booked_dates: [{type: Date}],
     rooms : [{ 
         room_number: { type: Number },
         room_type: { type: String },
@@ -40,20 +42,17 @@ const AccomodationSchema = new Schema({
     bookings: [{
         landlord_id: { type: Schema.Types.ObjectId, ref: 'Landlord' },
         student_id:{ type: Schema.Types.ObjectId, ref: 'Student' },
-        room_id: { type: Number },
-        agreement_type: { type: Schema.Types.ObjectId, ref: 'Agreement' },
+        agreement_type: { type: String },
         start_date: { type : Date },
         end_date: { type : Date },
-        flexi_day_start: { type : String },
-        flexi_day_end: { type : String },
+        flexi_days: [{ type : Number }],
         default: []
     }],
     reviews: [{
-        review_id: { type: Number },
         student_id:{ type: Schema.Types.ObjectId, ref: 'Student' },
-        rating: { type: Number },
+        student_name: { type: String },
         summary: { type: String },
-        date: { type: String },
+        date: { type: Date, default: Date.now },
         default: []
     }],
     property_images: [{
@@ -66,5 +65,20 @@ const AccomodationSchema = new Schema({
     ]
 });
 
+AccomodationSchema.statics.findByZIP = function (zip) {
+    return this.findOne({ zip: zip });
+  };
+
+  AccomodationSchema.statics.findById = function (id) {
+    return this.findOne({ _id: id });
+  };
+
+  AccomodationSchema.statics.findByLandlordId = function (id) {
+    return this.find({ landlord_id: id });
+  };
+
+  AccomodationSchema.statics.deleteById = function (id) {
+    return this.deleteOne({ _id: id });
+  };
 
 export default mongoose.model('Accomodation', AccomodationSchema);

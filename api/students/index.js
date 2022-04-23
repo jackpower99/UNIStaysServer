@@ -4,10 +4,23 @@ import asyncHandler from 'express-async-handler';
 import passport from '../authenticate';
 import multer from "multer";
 import { type } from "express/lib/response";
+const {
+  ObjectId
+} = require('mongodb');
 
 const router = express.Router();
 
-router.get('/', async(req, res) => {
+router.post('/delete', async (req, res) => {
+  try{
+    const students = await Student.deleteMany();
+    res.status(200).json(students);
+  }
+  catch(err){
+    console.log(err)
+  }
+});
+
+router.get('/',passport.authenticate("jwt", { session: false }), async(req, res) => {
     const students = await Student.find();
     res.status(200).json(students);
 });
@@ -27,17 +40,20 @@ var documents = files.map(f => ({
 var studentFormData = req.body;
 studentFormData.documents = documents;
 
-    if (!req.body.email) {
+    if (!studentFormData.student_email) {
         res.status(401).json({success: false, msg: 'No Student Data Received'});
         return next();
       }
     else{
-      const existingStudent = await Student.findByEmail(req.body.email);
+      const existingStudent = await Student.findByEmail(studentFormData.student_email);
       if(existingStudent){
         res.status(401).json({success: false, msg: 'Student Already Has Account'});
       }
       else{
-        await Student.create(studentFormData).catch(e => {console.log(e)})
+        await Student.create(studentFormData).catch(e => {
+        console.log(e)
+        res.status(401).json({success: false, msg: 'Error creating Account'})
+        })
         res.status(201).json({code: 201, msg: 'Successful created new student.'});
       }
     }
@@ -45,14 +61,16 @@ studentFormData.documents = documents;
 
 //Get Student Information By ID
 
-router.get("/:email",passport.authenticate("jwt", { session: false }), asyncHandler(async (req, res, next) =>{
+router.get("/:email", asyncHandler(async (req, res, next) =>{
   const studentEmail = req.params.email;
+  console.log(studentEmail)
+  console.log(studentEmail)
   if(!studentEmail){
     res.status(401).json({success: false, msg: 'No student email Data Received'});
     return next();
   }
   else{
-    const existingStudent = await Student.findByEmail(req.params.email);
+    const existingStudent = await Student.findByEmail(studentEmail);
     if(!existingStudent){
       res.status(401).json({success: false, msg: 'No Student with this email exists'});
     }
@@ -195,14 +213,21 @@ router.delete("/:student_email/documents/:id", passport.authenticate("jwt", { se
 }));
 
 router.post("/:student_email/friends", passport.authenticate("jwt", { session: false }), asyncHandler(async (req, res, next) =>{
-  const studentEmail = req.params.email;
-  const friend = req.body;
+
+  const studentEmail = req.params.student_email;
+  const friend = req.body.friends_id;
+
+  console.log(1, friend)
+
+ 
   if(!studentEmail){
     res.status(401).json({success: false, msg: 'No student email Data Received'});
     return next();
   }
   else{
-    const existingStudent = await Student.findByEmail(req.params.email);
+    const existingStudent = await Student.findByEmail(studentEmail);
+
+    console.log(existingStudent.fname)
 
     if(!existingStudent){
       res.status(401).json({success: false, msg: 'No Student with this email exists'});
@@ -212,16 +237,19 @@ router.post("/:student_email/friends", passport.authenticate("jwt", { session: f
     }
     else{
       await Student.updateOne(
-        {email: studentEmail},
-        {$push: {friends: friend} }
+        {student_email: studentEmail},
+        {$push: {"friends": {
+          _id: friend } }
+        }
         );
       res.status(201).json({code: 201, msg: 'Successful added friend to student.'});
     }
   }
 }));
 
+
 router.get("/:student_email/friends", passport.authenticate("jwt", { session: false }), asyncHandler(async (req, res, next) =>{
-  const studentEmail = req.params.email;
+  const studentEmail = req.params.student_email;
   if(!studentEmail){
     res.status(401).json({success: false, msg: 'No student email Data Received'});
     return next();
@@ -232,7 +260,22 @@ router.get("/:student_email/friends", passport.authenticate("jwt", { session: fa
       res.status(401).json({success: false, msg: 'No Student with this email exists'});
     }
     const {friends} =  await Student.findStudentFriends(studentEmail);
-    res.status(200).json({success: true, friends});
+    if(!friends){
+      res.status(401).json({success: false, msg: 'No friends'});
+    }
+    else{
+      const studentIDs = friends.map(ObjectId);
+      console.log(studentIDs)
+      const studentsData = await Student.find({
+         _id: {$in : studentIDs }
+      })
+      if(!studentsData){
+        res.status(401).json({success: false, msg: 'No friends data'});
+      }
+      else{
+    res.status(200).json({success: true, studentsData});
+      }
+    }
   }
 }));
 
@@ -259,6 +302,42 @@ router.delete("/:student_email/friends/:id", passport.authenticate("jwt", { sess
   }
 }));
 
+router.post('/:student_email/profile-picture', upload.any("documents"),passport.authenticate("jwt", { session: false }), asyncHandler (async (req, res, next) => {
+  const studentEmail = req.params.student_email;
 
+  const files = req.files;
+
+  var documents = files.map(f => ({
+    type : f.mimetype,
+    name : f.originalname,
+    data : f.buffer
+  }));
+  
+  var studentFormData = req.body;
+  studentFormData.documents = documents;
+
+  const profilePicture = studentFormData.documents[0]
+  
+      if (!profilePicture) {
+          res.status(401).json({success: false, msg: 'No Picture Data Received'});
+          return next();
+        }
+      else{
+          await Student.updateOne(
+          {student_email: studentEmail},
+          {$set : { profile_picture: {
+            type: profilePicture.type, 
+            name: profilePicture.name, 
+            data: profilePicture.data }
+        }
+      },function (err,docs){
+        if(err){
+          console.log(err)
+        }
+      }
+          );
+        res.status(201).json({code: 201, msg: 'Successful added profile picture for student.'});
+      }
+    }));
 
 export default router;

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const StudentSchema = new Schema({
-    email: { type: String, unique: true, required: true },
+    student_email: { type: String, unique: true, required: true },
     fname: { type: String },
     lname: { type: String},
     address: { type: String},
@@ -11,7 +11,6 @@ const StudentSchema = new Schema({
     phone_number:{ type: String },
     college:{ type: String },
     year_of_study:{ type:String },
-    //profile_picture:{ type:String },
     allow_show_location: { type: Boolean },
     reviews: [{ 
         landlord_id: {type: Schema.Types.ObjectId, ref: 'Landlord'},
@@ -20,6 +19,11 @@ const StudentSchema = new Schema({
         date: { type: String },
         default: []
     }],
+    profile_picture:{
+        type: { type: String },
+        name: { type: String },
+        data: { type: Buffer }, 
+    },
     documents: [{ 
         type: { type: String },
         name: { type: String },
@@ -33,32 +37,32 @@ const StudentSchema = new Schema({
 });
 
 StudentSchema.statics.findByEmail = function (email) {
-    return this.findOne({ email: email });
+    return this.findOne({ student_email: email });
   };
 
 StudentSchema.statics.findStudentReviews = function (email){
-    return this.findOne({email: email}, 'reviews');
+    return this.findOne({student_email: email}, 'reviews');
 }
 
 StudentSchema.statics.findStudentDocuments = function (email){
-    return this.findOne({email: email}, 'documents');
+    return this.findOne({student_email: email}, 'documents');
 }
 
 StudentSchema.statics.findStudentFriends = function (email){
-    return this.findOne({email: email}, 'friends');
+    return this.findOne({student_email: email}, 'friends');
 }
 StudentSchema.statics.removeStudentReview = function (email, id){
-    return this.updateOne({email: email},
+    return this.updateOne({student_email: email},
     { $pull: { reviews: {_id : id } } } );
 }
 
 StudentSchema.statics.removeStudentDocument = function (email, id){
-    return this.updateOne({email: email},
+    return this.updateOne({student_email: email},
     { $pull: { reviews: {_id : id } } } );
 }
 
 StudentSchema.statics.removeStudentFriend = function (email, id){
-    return this.updateOne({email: email},
+    return this.updateOne({student_email: email},
     { $pull: { reviews: {_id : id } } } );
 }
 

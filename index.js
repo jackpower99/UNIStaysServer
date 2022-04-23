@@ -7,6 +7,7 @@ import landlordsRouter from './api/landlords';
 import bodyParser from "body-parser";
 import passport from './api/authenticate';
 import accomodationRouter from './api/accomodations';
+import paymentRouter from './api/payment'
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use('/api/students', studentRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/landlords', landlordsRouter);
 app.use('/api/accomodations', accomodationRouter)
+app.use('/api/payment', paymentRouter);
 
 //For protected routes
 //app.use('/api/movies', passport.authenticate('jwt', {session: false}), moviesRouter);

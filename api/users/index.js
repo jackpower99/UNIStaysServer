@@ -23,36 +23,56 @@ router.get('/', passport.authenticate("jwt", { session: false }), async (req, re
   }
 });
 
+router.post('/delete', async (req, res) => {
+  try{
+    const users = await User.deleteMany();
+    console.log(users)
+    res.status(200).json(users);
+  }
+  catch(err){
+    console.log(err)
+  }
+});
+
+
 // Register OR authenticate a user
 router.post('/',asyncHandler( async (req, res, next) => {
+ 
     if (!req.body.email || !req.body.password) {
-      res.status(401).json({success: false, msg: 'Please pass username and password.'});
+      res.status(401).json({code: 401, success: false, msg: 'Please pass username and password.'});
       return next();
     }
     if (req.query.action === 'register') {
-      if(passwordRegex.test(req.body.password)){
-        const newUser = new User({
+      const user = await User.findByEmail(req.body.email);
+      if(user){
+      res.status(401).json({code: 401, success: false, msg: 'User Already Exists'})
+      }
+      else {
+         if(passwordRegex.test(req.body.password)){
+         const newUser = new User({
             email: req.body.email,
             password: req.body.password,
             role: req.body.role
     });
       await User.create(newUser).catch(e => {console.log(e)})
-      res.status(201).json({code: 201, msg: 'Successful created new user.'});
+      res.status(201).json({code: 201, success: true, msg: 'Successful created new user.'});
       }
       else{
-        res.status(401).json({code:  401, msg: 'Invalid Password format'})
+        res.status(401).json({code:  401, success: false, msg: 'Invalid Password format'})
       }
-    } else {
+    } 
+  }
+  else {
       const user = await User.findByEmail(req.body.email);
-        if (!user) return res.status(401).json({ code: 401, msg: 'Authentication failed. User not found.' });
+        if (!user) return res.status(401).json({ code: 401, success: false, msg: 'Authentication failed. User not found.' });
         user.comparePassword(req.body.password, (err, isMatch) => {
           if (isMatch && !err) {
             // if user is found and password matches, create a token
             const token = jwt.sign({email: user.email}, process.env.SECRET, {expiresIn: "2d"});
             // return the information including token as JSON
-            res.status(200).json({success: true, user: user, token: 'BEARER ' + token});
+            res.status(200).json({code: 201, success: true, user: user, token: 'BEARER ' + token});
           } else {
-            res.status(401).json({code: 401,msg: 'Authentication failed. Wrong password.'});
+            res.status(401).json({code: 401, success: false, msg: 'Authentication failed. Wrong password.'});
           }
         });
       }

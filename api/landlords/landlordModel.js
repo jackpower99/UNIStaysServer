@@ -10,7 +10,7 @@ const LandlordSchema = new Schema({
     date_of_birth: { type: String },
     phone_number:{ type: String },
     profile_picture:{
-        type: { String },
+        type: { type: String },
         name: { type: String },
         data: { type: Buffer }, },
     documents: [{ 
